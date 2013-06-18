@@ -1,0 +1,147 @@
+ICON = 'icon-default.png'
+
+
+####################################################################################################
+def NormalizeURL(url):
+
+	return url
+
+####################################################################################################
+def GetItemInfo(url, itemInfo):
+
+	sname = url.split("sname=")[1]
+	title = url.split("title=")[1].split("&")[0]
+	summary = url.split("summary=")[1].split("&")[0]
+	show = "Fox 4 DFW - " + sname
+	source_title = "Fox 4 DFW News Station"
+	date = Datetime.ParseDate(url.split("date=")[1].split("&")[0]).date()
+	duration = None
+	if sname == "Live":
+		thumb = "http://content.foxtvmedia.com/kdfw/live/" + url.split("img=")[1].split("&")[0]
+	else:
+		thumb = "http://KDFW.images.worldnow.com/images/" + url.split("img=")[1].split("&")[0]
+
+	if itemInfo == "Metadata":
+		obj = EpisodeObject(
+			url = url,
+			title = title,
+			summary = summary,
+			duration = duration,
+			show = show,
+			source_title = source_title,
+			originally_available_at = date,
+			thumb = Callback(GetThumb, url=thumb))
+
+	elif itemInfo == "MediaObject":
+		bitrate = url.split("bitrate=")[1].split("&")[0]
+		clip = url.split("streamId=")[1].split("&")[0]
+		if sname == "Live":
+			port = url.split("port=")[1].split("&")[0]
+			swfUrl = "http://content.foxtvmedia.com/kdfw/live/AkamaiFlashPlayer.swf"
+			url_MO = "rtmp://cp156346.live.edgefcs.net:"+port+"/live?ovpfv=2.1.6"
+			app = "live?ovpfv=2.1.6"
+			live = True
+			video_frame_rate = "24"
+			protocols = Protocol.RTMP
+			container = None
+			optimized_for_streaming = True
+			pageUrl = url.split("/?streamId=")[0]
+			height = "360"
+			width = "640"
+
+			obj = [MediaObject(
+				parts = [PartObject(key=RTMPVideoURL(url=url_MO, clip=clip, app=app, subscribe=clip, swfUrl=swfUrl, swfVfy=0, pageUrl=pageUrl, args=[False, clip], live=live))],
+				video_frame_rate = video_frame_rate,
+				video_resolution = "480",
+				height = height,
+				width = width,
+				video_codec = VideoCodec.H264,
+				audio_codec = AudioCodec.AAC,
+				protocols = protocols,
+				container = container,
+				bitrate = bitrate,
+				audio_channels = 2,
+				duration = duration,
+				optimized_for_streaming = optimized_for_streaming)]
+
+		else:
+			swfUrl = "http://admin.brightcove.com/viewer/us20120810.1250/BrightcoveBootloader.swf"
+			url_MO = "http://kdfw.videodownload.worldnow.com/"+clip
+			height = url.split("height=")[1].split("&")[0]
+			width = url.split("width=")[1].split("&")[0]
+			pageUrl = url.split("&amp;streamId=")[0]
+			video_frame_rate = "30"
+			protocols = None
+			container = Container.MP4
+			optimized_for_streaming = True
+			app = None
+			live = False
+
+			obj = [MediaObject(
+				parts = [PartObject(key=Callback(PlayVideo, url=url_MO))],
+				video_frame_rate = video_frame_rate,
+				video_resolution = "480",
+				height = height,
+				width = width,
+				video_codec = VideoCodec.H264,
+				audio_codec = AudioCodec.AAC,
+				protocols = protocols,
+				container = container,
+				bitrate = bitrate,
+				audio_channels = 2,
+				optimized_for_streaming = optimized_for_streaming)]
+
+	return obj
+
+
+###################################################################################################
+def MetadataObjectForURL(url):
+
+	return GetItemInfo(url,'Metadata')
+
+
+###################################################################################################
+def MediaObjectsForURL(url):
+
+	return GetItemInfo(url,'MediaObject')
+
+
+###################################################################################################
+def PlayVideo(url):
+
+	# The source of the page actually contains a link to the associated mp4 file.
+	return Redirect(url)
+
+
+####################################################################################################
+def TestURLs():
+
+	test_urls = []
+	i = 1
+	page = HTML.ElementFromURL('http://www.ilive.to/channels/?p=1')
+	for link in page.xpath("//li"):
+		if i > 6:
+			if len(test_urls) < 3:
+				url = channels.xpath('./a')[0].get('href')
+				streamId = thumb.rpartition('/')[2].split('_')[0]
+				url = url+"/?streamId="+streamId
+	
+				if url not in test_urls:
+					test_urls.append(url)
+			else:
+				break
+		else:
+			i += 1
+
+	return test_urls
+
+
+####################################################################################################
+def GetThumb(url):
+
+	try:
+		data = HTTP.Request(url, cacheTime=CACHE_1MONTH).content
+		return DataObject(data, 'image/jpeg')
+	except:
+		return Redirect(R(ICON))
+

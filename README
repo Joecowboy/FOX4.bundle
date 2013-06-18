@@ -1,0 +1,4 @@
+This is a Plex channel plugin that pulls in live streaming News Broadcast and video feeds from the website www.myfoxdfw.com.
+
+It uses live RTMP server.  However, at the moment Plex Media Sever's transcoder live RTMP is broken to play the live news broadcast.  The video feeds play just fine.
+
