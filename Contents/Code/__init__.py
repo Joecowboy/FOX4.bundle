@@ -127,7 +127,10 @@ def Weather(title):
 		bitrate = weather.xpath("./media:group/media:content", namespaces=NS2)[0].get('bitrate')
 		width = weather.xpath("./media:group/media:content", namespaces=NS2)[0].get('width')
 		height = weather.xpath("./media:group/media:content", namespaces=NS2)[0].get('height')
-		thumb = weather.xpath("./media:thumbnail", namespaces=NS2)[0].get('url')
+		try:
+			thumb = weather.xpath("./media:thumbnail", namespaces=NS2)[0].get('url')
+		except:
+			thumb = ICON_WEATHER
 		img = thumb.rpartition('/')[2]
 		url = weather.xpath("./media:group/media:content/media:player", namespaces=NS2)[0].get('url')
 		mediacontent = weather.xpath("./media:group/media:content", namespaces=NS2)[0].get('url')
@@ -170,7 +173,10 @@ def GoodDay(title):
 		bitrate = goodday.xpath("./media:group/media:content", namespaces=NS2)[0].get('bitrate')
 		width = goodday.xpath("./media:group/media:content", namespaces=NS2)[0].get('width')
 		height = goodday.xpath("./media:group/media:content", namespaces=NS2)[0].get('height')
-		thumb = goodday.xpath("./media:thumbnail", namespaces=NS2)[0].get('url')
+		try:
+			thumb = goodday.xpath("./media:thumbnail", namespaces=NS2)[0].get('url')
+		except:
+			thumb = ICON_NEWSCLIPS
 		img = thumb.rpartition('/')[2]
 		url = goodday.xpath("./media:group/media:content/media:player", namespaces=NS2)[0].get('url')
 		mediacontent = goodday.xpath("./media:group/media:content", namespaces=NS2)[0].get('url')
@@ -213,7 +219,10 @@ def News(title):
 		bitrate = news.xpath("./media:group/media:content", namespaces=NS2)[0].get('bitrate')
 		width = news.xpath("./media:group/media:content", namespaces=NS2)[0].get('width')
 		height = news.xpath("./media:group/media:content", namespaces=NS2)[0].get('height')
-		thumb = news.xpath("./media:thumbnail", namespaces=NS2)[0].get('url')
+		try:
+			thumb = news.xpath("./media:thumbnail", namespaces=NS2)[0].get('url')
+		except:
+			thumb = ICON_GOODDAY
 		img = thumb.rpartition('/')[2]
 		url = news.xpath("./media:group/media:content/media:player", namespaces=NS2)[0].get('url')
 		mediacontent = news.xpath("./media:group/media:content", namespaces=NS2)[0].get('url')
